@@ -23,10 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keyup", (event) => {
 
         if (event.code === "KeyA") {
-            ws.send(JSON.stringify({key: 1<<0,down: false,Timestamp: Date.now()}));
+            ws.send(JSON.stringify({key: cInputLeft,down: false,Timestamp: Date.now()}));
         }
         if (event.code === "KeyD") {
-            ws.send(JSON.stringify({key: 1<<1,down: false ,Timestamp: Date.now()}));
+            ws.send(JSON.stringify({key: cInputRight,down: false ,Timestamp: Date.now()}));
         }
         //send an input for Key S
         if (event.code === "KeyS") {
@@ -42,10 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if(event.repeat) return;
 
         if (event.code === "KeyA") {
-            ws.send(JSON.stringify({key: 1<<0,down: true ,Timestamp: Date.now()}));
+            ws.send(JSON.stringify({key: cInputLeft,down: true ,Timestamp: Date.now()}));
         }
         if (event.code === "KeyD") {
-            ws.send(JSON.stringify({key: 1<<1,down: true ,Timestamp: Date.now()}));
+            ws.send(JSON.stringify({key: cInputRight,down: true ,Timestamp: Date.now()}));
         }
         //send an input for Key S
         if (event.code === "KeyS") {

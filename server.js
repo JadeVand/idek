@@ -1,8 +1,10 @@
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8000 });
 
-let cInputDown = 1<<2;
-let cInputUp = 1<<3;
+let cInputLeft = 1;
+let cInputRight = 2;
+let cInputDown = 4;
+let cInputUp = 8;
 class PlayerData {
   constructor(id) {
     this.input = 0;
@@ -55,7 +57,13 @@ class PlayerData {
     return this.y;
   }
   Update(delta) {
-    
+
+    if (this.input & cInputLeft) {
+      this.x -= 100 * delta;
+    }
+    if (this.input & cInputRight) {
+      this.x += 100 * delta;
+    }
     if (this.input & cInputDown) {
       this.y += 100 * delta;
     }
@@ -82,12 +90,12 @@ function tick() {
 
     wss.clients.forEach((client) => {
       let p = playermap.get(client.id);
-      p.Update(1/60.0);
-      state.push({PlayerX:p.GetX(),PlayerY:p.GetY(),PlayerId:p.GetId()});
+      p.Update(1 / 60.0);
+      state.push({ PlayerX: p.GetX(), PlayerY: p.GetY(), PlayerId: p.GetId() });
     })
     wss.clients.forEach((client) => {
       //send to client
-      client.send(JSON.stringify({ State: state,Timestamp: Date.now()+ ( (1/60.0) * 5) }));
+      client.send(JSON.stringify({ State: state, Timestamp: Date.now() }));
     })
     //reset input for all clients in wss
 

@@ -1,6 +1,8 @@
 
-let cInputDown = 1<<2;
-let cInputUp = 1<<3;
+let cInputLeft = 1;
+let cInputRight = 2;
+let cInputDown = 4;
+let cInputUp = 8;
 class input
 {
     constructor(input,timestamp)

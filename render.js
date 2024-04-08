@@ -7,32 +7,44 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.width = 1280;
     canvas.height = 720;
 
+    function RenderPlayer(x, y, width, height) {
+
+        ctx.fillStyle = "red";
+        ctx.fillRect(x, y, width, height);
+    }
+    function Deque() {
+        let state = renderpackets[0];
+        renderpackets.shift();
+        return state;
+    }
+    function ProcessPackets() {
+        let state = Deque();
+        for (let i = 0; i < state.State.length; ++i) {
+            let player = state.State[i];
+            RenderPlayer(player.PlayerX, player.PlayerY, 16, 16);
+        }
+    }
     //tick function with delta argument
+    let delay = ((1 / 60.0) * 5)
     const Draw = (t) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         //iterate all players
-        if(renderpackets.length>2)
-        {
-            let state = renderpackets[0];
-            if(Date.now() > state.Timestamp)
-            {
-                //iterate state.state array
-                for(let i = 0; i < state.State.length; ++i)
-                {
-                    let player = state.State[i];
-                    ctx.fillStyle = "red";
-                    ctx.fillRect(player.PlayerX, player.PlayerY, 16, 16);
-                }
-                renderpackets.shift();
+        if (renderpackets.length > 2) {
+            let tnow = Date.now();
+            let tfuture = renderpackets[0].Timestamp + delay;
+            if (tnow > tfuture) {
+                ProcessPackets();
             }
         }
-        if(renderpackets.length>15)
-        {
-            console.log("too much packets");
+        if (renderpackets.length > 10) {
+            
+            while (renderpackets.length > 1) {
+                ProcessPackets();
+            }
         }
         requestAnimationFrame(Draw);
     }
     requestAnimationFrame(Draw);
     //request Animation Frame
-    
+
 })

@@ -1,7 +1,7 @@
 class Player {
-    constructor(id) {
-        this.x = 0;
-        this.y = 0;
+    constructor(id,x,y) {
+        this.x = x;
+        this.y = y;
         this.inputs = [];
         this.id = id;
         this.currentinput = 0;
@@ -49,6 +49,8 @@ class Player {
             if (input & cInputUp) {
                 this.SetY(this.GetY() - 100 * delta);
             }
+
+
         }
 
     }

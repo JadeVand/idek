@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = JSON.parse(event.data);
         console.log(data);
         if (data.Connected == true) {
-            players.push(new Player(data.Id));
+            players.push(new Player(data.Id,data.X,data.Y));
         }
         if(data.Connected == false){
             players = players.filter(p => p.id != data.id);

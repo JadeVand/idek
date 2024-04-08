@@ -12,20 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-
-        if (data.Connected == true) {
-            players.push(new Player(data.Id,data.X,data.Y));
-        }
-        if(data.Connected == false){
-            players = players.filter(p => p.id != data.id);
-        }
         if(data.Timestamp)
         {
-            let p = players.find(p => p.GetId() == data.Id);
-            if(p)
-            {
-                p.PushInputQueue(new input(data.Input,data.Timestamp));
-            }
+            renderpackets.push(data);
         }
     }
 

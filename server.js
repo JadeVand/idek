@@ -11,6 +11,7 @@ class PlayerData {
     this.inputtimestamp = 0;
     this.x = 0;
     this.y = 0;
+    this.statechanged = false;
   }
   GetInput() {
     return this.input;
@@ -61,7 +62,7 @@ class PlayerData {
     if (this.input & cInputUp) {
       this.y -= 100 * delta;
     }
-    console.log("X:"+this.x+":Y:"+this.y);
+
   }
 }
 let playermap = new Map();
@@ -76,31 +77,20 @@ function tick() {
   accumulator += delta;
   while (accumulator > (1 / 60.0)) {
     accumulator -= (1 / 60.0);
-    wss.clients.forEach((client) => {
-      wss.clients.forEach((innerClient) => {
-        let p = playermap.get(innerClient.id);
-        if (p.DidInputChange()) {//no need to spam send
-  
-          let input = p.GetInput();
-          let now = Date.now();
-          let inputtimestamp = p.GetInputTimestamp();
-          let diff = now - inputtimestamp;
-          if (diff > 100) {
-            diff = 100;
-          }
-          let delay = 100 - diff;
-          client.send(JSON.stringify({ Input: input, Timestamp: Date.now() + delay, Id: p.GetId() }));
-  
-        }
-      })
-    })
-    //reset input for all clients in wss
-  
+
+    let state = [];
+
     wss.clients.forEach((client) => {
       let p = playermap.get(client.id);
-      p.Update(1/60);
-      p.ResetInputChanged();
+      p.Update(1/60.0);
+      state.push({PlayerX:p.GetX(),PlayerY:p.GetY(),PlayerId:p.GetId()});
     })
+    wss.clients.forEach((client) => {
+      //send to client
+      client.send(JSON.stringify({ State: state,Timestamp: Date.now()+ ( (1/60.0) * 5) }));
+    })
+    //reset input for all clients in wss
+
   }
 }
 setInterval(() => {
@@ -115,20 +105,6 @@ wss.on('connection', (ws) => {
   ++id;
   //send new client id back to all connected clients
 
-  wss.clients.forEach((client) => {
-    // console.log(client.id);
-    let p = playermap.get(client.id);
-    if(p)
-    {
-      ws.send(JSON.stringify({ Connected: true, Id: client.id ,X: p.GetX(),Y: p.GetY()}));
-    }
-    
-  })
-  wss.clients.forEach((client) => {
-    if (client.id != ws.id) {
-      client.send(JSON.stringify({ Connected: true, Id: ws.id, X: 0, Y: 0 }));
-    }
-  })
   ws.on('error', (error) => {
     console.log(error);
   })

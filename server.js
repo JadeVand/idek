@@ -61,7 +61,7 @@ class PlayerData {
     if (this.input & cInputUp) {
       this.y -= 100 * delta;
     }
-
+    console.log("X:"+this.x+":Y:"+this.y);
   }
 }
 let playermap = new Map();

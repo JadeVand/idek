@@ -1,6 +1,7 @@
 let bConnected = false;
 document.addEventListener("DOMContentLoaded", () => {
     const ws = new WebSocket("ws://localhost:8000");
+    //35.176.122.113:8000
     //on connected
     ws.onopen = () => {
         bConnected = true;
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log(data);
+
         if (data.Connected == true) {
             players.push(new Player(data.Id,data.X,data.Y));
         }
@@ -20,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if(data.Timestamp)
         {
-            console.log(data.Input);
             let p = players.find(p => p.GetId() == data.Id);
             if(p)
             {
@@ -69,3 +69,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
 })
+
+
+//Found the issue 
+//BOth the server and the client have to delay their inputs for each player respectively
+//Since I'm already using a fixed time step I might as well get rid of the 100ms delay
+//And just use frame / tick numbers
+//Let the server send the current tick number to the client
+//The server needsd to push back the client's input until the right tick then apply it.

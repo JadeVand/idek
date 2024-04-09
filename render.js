@@ -29,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let delay = ((1 / 60.0) * 5)
     const Draw = (t) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         //iterate all players
         if (renderpackets.length > 1) {
             let tnow = Date.now();

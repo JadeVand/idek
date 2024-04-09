@@ -1,6 +1,8 @@
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8000 });
 
+
+
 let cInputLeft = 1;
 let cInputRight = 2;
 let cInputDown = 4;
@@ -74,6 +76,7 @@ class PlayerData {
   }
 }
 let playermap = new Map();
+const kTimestep = 1 / 1.0;
 
 //tick function
 let accumulator = 0.0;
@@ -83,14 +86,14 @@ function tick() {
   let delta = (tnow - tprev) / 1000.0;
   tprev = tnow;
   accumulator += delta;
-  while (accumulator > (1 / 60.0)) {
-    accumulator -= (1 / 60.0);
+  while (accumulator > (kTimestep)) {
+    accumulator -= (kTimestep);
 
     let state = [];
 
     wss.clients.forEach((client) => {
       let p = playermap.get(client.id);
-      p.Update(1 / 60.0);
+      p.Update(kTimestep);
       state.push({ PlayerX: p.GetX(), PlayerY: p.GetY(), PlayerId: p.GetId() });
     })
     wss.clients.forEach((client) => {

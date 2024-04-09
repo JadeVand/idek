@@ -13,48 +13,69 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillRect(x, y, width, height);
     }
     function Deque() {
-        let state = renderpackets[0];
         renderpackets.shift();
-        return state;
     }
-    function ProcessPackets() {
-        let state = Deque();
-        for (let i = 0; i < state.State.length; ++i) {
-            let player = state.State[i];
-            RenderPlayer(player.PlayerX, player.PlayerY, 16, 16);
+    function ProcessPackets(state) {
+        if(state != null)
+        {
+            for (let i = 0; i < state.State.length; ++i) {
+                let player = state.State[i];
+                RenderPlayer(player.PlayerX, player.PlayerY, 16, 16);
+            }
         }
-        renderframe = state;
+
     }
-    //tick function with delta argument
-    let delay = ((1 / 60.0) * 5)
+
+    function GetGamestate()
+    {
+        let nextframe = GetNextFrameIndex();
+        if(nextframe == -1)
+        {
+            console.log("Too early");
+            //use the most recent frame we have
+            return renderpackets[renderpackets.length -1];
+            
+        }
+        else if(nextframe == renderpackets.length-1)
+        {
+
+            return renderpackets[renderpackets.length-1];
+        }
+        else 
+        {
+            const time = GetServerTime();
+            const frame = renderpackets[nextframe];
+            const next = renderpackets[nextframe+1];
+            const alpha = (time - frame.Timestamp) / (next.Timestamp - frame.Timestamp);
+            //interpolate the state
+            let state = {};
+            state.State = [];
+            for(let i = 0; i < frame.State.length; ++i)
+            {
+                state.State[i] = {
+                    PlayerX: frame.State[i].PlayerX + (next.State[i].PlayerX - frame.State[i].PlayerX) * alpha,
+                    PlayerY: frame.State[i].PlayerY + (next.State[i].PlayerY - frame.State[i].PlayerY) * alpha,
+                    PlayerId: frame.State[i].PlayerId
+                }
+            }
+            state.Timestamp = time;
+            console.log(alpha);
+            return state;
+        }
+
+    }
+    let tprev = Date.now();
     const Draw = (t) => {
+        let tnow = Date.now();
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        //iterate all players
-        if (renderpackets.length > 1) {
-            let tnow = Date.now();
-            let tfuture = renderpackets[0].Timestamp + delay;
-            if (tnow > tfuture) {
-                ProcessPackets();
-            } 
-        }
-        else {
-            if(renderframe != null)
-            {
-                let state = renderframe;
-                for (let i = 0; i < state.State.length; ++i) {
-                    let player = state.State[i];
-                    RenderPlayer(player.PlayerX, player.PlayerY, 16, 16);
-                }
-            }
-        }
-        if (renderpackets.length > 10) {
-            
-            while (renderpackets.length > 1) {
-                ProcessPackets();
-            }
-        }
+        
+
+        let state = GetGamestate();
+        ProcessPackets(state);
+
         requestAnimationFrame(Draw);
     }
     requestAnimationFrame(Draw);

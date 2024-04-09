@@ -76,8 +76,7 @@ class PlayerData {
   }
 }
 let playermap = new Map();
-const kTimestep = 1 / 1.0;
-
+const kTimestep = 1/60.0;
 //tick function
 let accumulator = 0.0;
 let tprev = Date.now();
@@ -114,6 +113,9 @@ wss.on('connection', (ws) => {
   ws.id = id;
   playermap.set(id, new PlayerData(id));
   ++id;
+  let now = Date.now();
+  ws.send(JSON.stringify({Id: ws.id, TimeServer: now}));
+  ws.send(JSON.stringify({ TimeGameStart: now }));
   //send new client id back to all connected clients
 
   ws.on('error', (error) => {

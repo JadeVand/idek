@@ -15,6 +15,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if(data.Timestamp)
         {
             renderpackets.push(data);
+            const index = GetNextFrameIndex();
+            
+            if(index > 0)
+            {
+                renderpackets.splice(0, index);
+            }
+        }
+        if(data.TimeServer)
+        {
+            timeserver = data.TimeServer;
+            console.log(timeserver);
+        }
+        if(data.TimeGameStart)
+        {
+            timegamestart = data.TimeGameStart;
+            console.log(timegamestart);
         }
     }
 

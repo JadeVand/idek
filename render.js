@@ -13,9 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillRect(x, y, width, height);
     }
     function Deque() {
-        renderframe = renderpackets[0];
+        let state = renderpackets[0];
         renderpackets.shift();
-        return renderframe;
+        return state;
     }
     function ProcessPackets() {
         let state = Deque();
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let player = state.State[i];
             RenderPlayer(player.PlayerX, player.PlayerY, 16, 16);
         }
+        renderframe = state;
     }
     //tick function with delta argument
     let delay = ((1 / 60.0) * 5)

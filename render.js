@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let nextframe = GetNextFrameIndex();
         if(nextframe == -1)
         {
-            console.log("Too early");
+            //console.log("Too early");
             //use the most recent frame we have
             return renderpackets[renderpackets.length -1];
             
@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const time = GetServerTime();
             const frame = renderpackets[nextframe];
             const next = renderpackets[nextframe+1];
-            const alpha = (time - frame.Timestamp) / (next.Timestamp - frame.Timestamp);
+            const alpha = ( (time*1.0) - (frame.Timestamp * 1.0)) / ( (next.Timestamp*1.0) - (frame.Timestamp * 1.0) );
+
             //interpolate the state
             let state = {};
             state.State = [];
@@ -59,14 +60,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             state.Timestamp = time;
-            console.log(alpha);
+           // console.log(alpha);
             return state;
         }
 
     }
+    const kTimestep = 1/60.0;
     let tprev = Date.now();
-    const Draw = (t) => {
+    let accumulator = 0.0;
+    function tick() {
         let tnow = Date.now();
+        let delta = (tnow - tprev) / 1000.0;
+        tprev = tnow;
+        accumulator += delta;
+        while (accumulator > (kTimestep)) {
+          ++clienttick;
+          accumulator -= (kTimestep);
+        }
+      }
+
+    setInterval(() => {
+        tick();
+        
+      }, 1 / 160.0)//just arbitrary it high framte rate which wont eat the CPU
+    const Draw = (t) => {
+  
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "black";

@@ -14,6 +14,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = JSON.parse(event.data);
         if(data.Timestamp)
         {
+            //we use gamestarttick and serverinitialtick later on for render delay
+            
+            if(gamestarttick == null)
+            {
+                console.log("storing start tick");
+                //store the tick when we start the game (receive first packet from the server)
+                gamestarttick = clienttick;
+            }
+            if(serverinitialtick == null)
+            {
+                console.log("storing server start tick");
+                //store the tick the server sends us on the first update
+                serverinitialtick = data.Timestamp;
+            }
             renderpackets.push(data);
             const index = GetNextFrameIndex();
             
@@ -22,16 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderpackets.splice(0, index);
             }
         }
-        if(data.TimeServer)
-        {
-            timeserver = data.TimeServer;
-            console.log(timeserver);
-        }
-        if(data.TimeGameStart)
-        {
-            timegamestart = data.TimeGameStart;
-            console.log(timegamestart);
-        }
+
     }
 
 

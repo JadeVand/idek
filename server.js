@@ -7,6 +7,7 @@ let cInputLeft = 1;
 let cInputRight = 2;
 let cInputDown = 4;
 let cInputUp = 8;
+let tickcounter = 0;
 class PlayerData {
   constructor(id) {
     this.input = 0;
@@ -39,9 +40,6 @@ class PlayerData {
   }
   DidInputChange() {
     return this.inputchanged;
-  }
-  SetInputTimestamp(timestamp) {
-    this.inputtimestamp = timestamp;
   }
   GetInputTimestamp() {
     return this.inputtimestamp;
@@ -80,6 +78,7 @@ const kTimestep = 1/60.0;
 //tick function
 let accumulator = 0.0;
 let tprev = Date.now();
+let shouldsendupdate = true;
 function tick() {
   let tnow = Date.now();
   let delta = (tnow - tprev) / 1000.0;
@@ -87,6 +86,8 @@ function tick() {
   accumulator += delta;
   while (accumulator > (kTimestep)) {
     accumulator -= (kTimestep);
+    ++tickcounter;
+    
 
     let state = [];
 
@@ -95,10 +96,16 @@ function tick() {
       p.Update(kTimestep);
       state.push({ PlayerX: p.GetX(), PlayerY: p.GetY(), PlayerId: p.GetId() });
     })
-    wss.clients.forEach((client) => {
-      //send to client
-      client.send(JSON.stringify({ State: state, Timestamp: Date.now() }));
-    })
+    shouldsendupdate = !shouldsendupdate;
+    if(shouldsendupdate)
+    {
+      wss.clients.forEach((client) => {
+        //send to client
+        client.send(JSON.stringify({ State: state, Timestamp: tickcounter}));
+      })
+
+    }
+
     //reset input for all clients in wss
 
   }
@@ -113,9 +120,6 @@ wss.on('connection', (ws) => {
   ws.id = id;
   playermap.set(id, new PlayerData(id));
   ++id;
-  let now = Date.now();
-  ws.send(JSON.stringify({Id: ws.id, TimeServer: now}));
-  ws.send(JSON.stringify({ TimeGameStart: now }));
   //send new client id back to all connected clients
 
   ws.on('error', (error) => {
@@ -128,7 +132,6 @@ wss.on('connection', (ws) => {
     if (message.key) {
       let p = playermap.get(ws.id);
       if (p) {
-        p.SetInputTimestamp(message.Timestamp);
         if (message.down == false) {
 
           p.RemoveInput(message.key);
